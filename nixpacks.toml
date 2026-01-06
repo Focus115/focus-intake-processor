@@ -6,7 +6,6 @@ cmds = ["npm install --production=false"]
 
 [phases.build]
 cmds = ["npm run build"]
-onlyIncludeFiles = ["client/dist", "server/dist", "node_modules", "package.json", "client/node_modules", "server/node_modules"]
 
 [start]
 cmd = "node server/dist/index.js"
