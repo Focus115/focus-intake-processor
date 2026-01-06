@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import transcribeRouter from './routes/transcribe';
 import questionRouter from './routes/question';
@@ -11,11 +12,17 @@ import { authMiddleware } from './middleware/auth';
 
 dotenv.config();
 
-// Debug: Log environment variable status
+// Debug: Log environment and file status
 console.log('Environment check:');
 console.log('- NODE_ENV:', process.env.NODE_ENV);
 console.log('- OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
-console.log('- All env keys:', Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
+console.log('- __dirname:', __dirname);
+const clientDistPath = path.join(__dirname, '../../client/dist');
+console.log('- Client dist path:', clientDistPath);
+console.log('- Client dist exists:', fs.existsSync(clientDistPath));
+if (fs.existsSync(clientDistPath)) {
+  console.log('- Client dist contents:', fs.readdirSync(clientDistPath));
+}
 
 // Validate required environment variables
 if (!process.env.OPENAI_API_KEY) {
