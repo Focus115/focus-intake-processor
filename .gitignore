@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment files (contains secrets)
+.env
+.env.local
+.env.production
+
+# Build output
+dist/
+build/
+
+# Uploaded files
+/tmp/transcription-uploads/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local npm cache
+.npm-cache/
