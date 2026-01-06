@@ -11,6 +11,12 @@ import { authMiddleware } from './middleware/auth';
 
 dotenv.config();
 
+// Debug: Log environment variable status
+console.log('Environment check:');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+console.log('- All env keys:', Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
+
 // Validate required environment variables
 if (!process.env.OPENAI_API_KEY) {
   console.error('ERROR: OPENAI_API_KEY environment variable is required');
