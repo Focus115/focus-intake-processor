@@ -17,6 +17,12 @@ export function TranscriptionResult({
   hideActions = false
 }: TranscriptionResultProps) {
   const [copied, setCopied] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteForever = () => {
+    setShowDeleteConfirm(false);
+    onClear();
+  };
 
   const handleCopy = async () => {
     try {
@@ -56,12 +62,43 @@ export function TranscriptionResult({
             Download
           </button>
           {!hideActions && (
-            <button onClick={onClear} className="action-btn secondary">
-              New File
-            </button>
+            <>
+              <button onClick={onClear} className="action-btn secondary">
+                New File
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="action-btn danger"
+              >
+                Delete Forever
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-dialog">
+            <h3>Delete Forever?</h3>
+            <p>This will permanently delete the transcription and all data. This cannot be undone.</p>
+            <div className="delete-confirm-actions">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="action-btn secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteForever}
+                className="action-btn danger"
+              >
+                Yes, Delete Forever
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="result-stats">
         <span>{wordCount} words</span>
