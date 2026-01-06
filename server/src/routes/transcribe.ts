@@ -6,6 +6,23 @@ import { processIntake } from '../services/intakeProcessor';
 
 const router = Router();
 
+/**
+ * Securely delete a file and verify it's gone
+ */
+function secureDeleteFile(filePath: string): void {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      // Verify deletion
+      if (fs.existsSync(filePath)) {
+        console.error('SECURITY WARNING: File still exists after deletion attempt:', filePath);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to delete file:', filePath, err);
+  }
+}
+
 router.post(
   '/transcribe',
   upload.single('audio'),
@@ -25,10 +42,8 @@ router.post(
       // Step 1: Transcribe audio with Whisper
       const transcription = await transcribeAudio(file.path);
 
-      // Clean up the uploaded file
-      fs.unlink(file.path, (err) => {
-        if (err) console.error('Failed to delete temp file:', err);
-      });
+      // Immediately delete the audio file after transcription (before any further processing)
+      secureDeleteFile(file.path);
 
       // Step 2: Process transcription into intake format with GPT-4o
       const formattedIntake = await processIntake(transcription);
@@ -39,7 +54,7 @@ router.post(
       });
     } catch (error) {
       // Clean up file on error too
-      fs.unlink(file.path, () => {});
+      secureDeleteFile(file.path);
       next(error);
     }
   }

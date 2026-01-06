@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import transcribeRouter from './routes/transcribe';
 import questionRouter from './routes/question';
 import { errorHandler } from './middleware/errorHandler';
+import { cleanupOrphanedFiles } from './middleware/fileUpload';
 
 dotenv.config();
 
@@ -18,6 +19,29 @@ if (!process.env.OPENAI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Clean up any orphaned files on startup
+cleanupOrphanedFiles();
+
+// Run cleanup every 5 minutes to catch any orphaned files
+setInterval(cleanupOrphanedFiles, 5 * 60 * 1000);
+
+// Security headers
+app.use((_req, res, next) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Enable XSS filter
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Strict transport security (HTTPS only)
+  if (isProduction) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  // Don't leak referrer info
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // CORS configuration
 app.use(
