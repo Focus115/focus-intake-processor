@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './auth';
+
 export class TranscriptionError extends Error {
   constructor(
     message: string,
@@ -76,6 +78,13 @@ export async function transcribeAudio(
     });
 
     xhr.open('POST', '/api/transcribe');
+
+    // Add auth header
+    const authHeaders = getAuthHeaders();
+    if (authHeaders.Authorization) {
+      xhr.setRequestHeader('Authorization', authHeaders.Authorization);
+    }
+
     xhr.send(formData);
   });
 }
@@ -91,6 +100,7 @@ export async function askQuestion(params: AskQuestionParams): Promise<string> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(params),
   });

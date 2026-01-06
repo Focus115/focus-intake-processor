@@ -4,8 +4,10 @@ import path from 'path';
 import dotenv from 'dotenv';
 import transcribeRouter from './routes/transcribe';
 import questionRouter from './routes/question';
+import authRouter from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { cleanupOrphanedFiles } from './middleware/fileUpload';
+import { authMiddleware } from './middleware/auth';
 
 dotenv.config();
 
@@ -54,6 +56,12 @@ app.use(
 );
 
 app.use(express.json());
+
+// Auth routes (before auth middleware so login works)
+app.use('/api', authRouter);
+
+// Auth middleware (protects all routes below)
+app.use('/api', authMiddleware);
 
 // Health check
 app.get('/api/health', (_req, res) => {
