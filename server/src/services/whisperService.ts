@@ -1,13 +1,13 @@
 import OpenAI from 'openai';
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
 
 let openai: OpenAI | null = null;
 
 function getOpenAIClient(): OpenAI {
   if (!openai) {
-    // Create HTTP agents with keep-alive to maintain connections
+    // Create HTTPS agent with keep-alive to maintain connections
+    // OpenAI API is HTTPS only, so we only need an HTTPS agent
     const httpsAgent = new https.Agent({
       keepAlive: true,
       keepAliveMsecs: 60000,
@@ -16,21 +16,11 @@ function getOpenAIClient(): OpenAI {
       timeout: 600000, // 10 minute socket timeout
     });
 
-    const httpAgent = new http.Agent({
-      keepAlive: true,
-      keepAliveMsecs: 60000,
-      maxSockets: 50,
-      maxFreeSockets: 10,
-      timeout: 600000,
-    });
-
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
       timeout: 600000, // 10 minute timeout (increased from 5)
       maxRetries: 5, // Increased retries for connection issues
-      httpAgent: httpAgent as any,
-      // @ts-ignore - OpenAI SDK supports this but types may not reflect it
-      httpsAgent: httpsAgent,
+      httpAgent: httpsAgent as any, // OpenAI SDK uses httpAgent for HTTPS too
     });
   }
   return openai;
