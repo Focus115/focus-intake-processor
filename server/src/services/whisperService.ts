@@ -27,11 +27,19 @@ export async function transcribeAudio(filePath: string): Promise<string> {
   const client = getOpenAIClient();
 
   try {
-    console.log('Calling OpenAI Whisper API...');
+    console.log('Reading file into buffer...');
+    // Read file into buffer instead of streaming
+    // Railway may have issues with long-running streams
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileName = filePath.split('/').pop() || 'audio.mp3';
 
-    // Let OpenAI SDK handle retries internally
+    console.log(`File loaded: ${fileBuffer.length} bytes, calling OpenAI Whisper API...`);
+
+    // Create a File-like object from buffer
+    const file = new File([fileBuffer], fileName, { type: 'audio/mpeg' });
+
     const transcription = await client.audio.transcriptions.create({
-      file: fs.createReadStream(filePath),
+      file: file,
       model: 'whisper-1',
       response_format: 'text',
     });
